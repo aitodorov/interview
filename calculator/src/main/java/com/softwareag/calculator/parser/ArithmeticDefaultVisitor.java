@@ -16,7 +16,6 @@ public class ArithmeticDefaultVisitor implements ArithmeticVisitor {
     }
 
     public int visit(ASTAddExpr node, Object data) {
-        // not possible to use the streams API here because there is no direct access to the children array
         int result = node.jjtGetChild(0).jjtAccept(this, data);
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             result += node.jjtGetChild(i).jjtAccept(this, data);
