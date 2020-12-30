@@ -1,0 +1,95 @@
+options {
+  MULTI=true;
+  VISITOR=true;
+  OUTPUT_DIRECTORY = "arithmetic";
+  VISITOR_RETURN_TYPE="int";
+  NODE_DEFAULT_VOID=true;
+  STATIC=false;
+}
+
+PARSER_BEGIN(Arithmetic)
+
+/**
+ * An Arithmetic Grammar.
+ */
+public class Arithmetic {
+
+    public int eval() throws ParseException {
+        ASTStart node = Start();
+        ArithmeticVisitor visitor = new ArithmeticDefaultVisitor();
+        return node.jjtAccept(visitor, null);
+    }
+}
+
+PARSER_END(Arithmetic)
+
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
+}
+
+TOKEN:
+{
+		<INTEGER_LITERAL: "0" | (["1"-"9"] (["0"-"9"])*) >
+	|	<DIVIDE: "/">
+	|	<MULTIPLY: "*">
+	|	<PLUS: "+">
+	|	<MINUS: "-">
+}
+
+/** Main production. */
+ASTStart Start() #Start : {}
+{
+  Expression() ";"
+  { return jjtThis; }
+}
+
+
+/** An Expression. */
+void Expression() : {}
+{
+  additiveExpression()
+}
+
+/** An Expression with '+' or '-'. */
+void additiveExpression() : {}
+{
+	multiplicativeExpression()
+	(<PLUS> multiplicativeExpression()#AddExpr(2)
+	 | <MINUS> multiplicativeExpression()#SubractExpr(2)
+	)*
+}
+
+/** An Expression with '*' or '/' */
+void multiplicativeExpression() : {}
+{
+	unaryExpression()
+	(
+	 <MULTIPLY> unaryExpression()#MultiplyExpr(2)
+	 |<DIVIDE> unaryExpression()#DivideExpr(2)
+	)*
+}
+
+/** A Unary Expression. */
+void unaryExpression() : {}
+{
+  "(" Expression() ")" | Integer()
+}
+
+/** An Integer. */
+void Integer() #Integer : 
+{
+  Token t;
+}
+{
+  t=<INTEGER_LITERAL>
+  {
+    jjtThis.jjtSetValue(t.image);
+  }
+}
