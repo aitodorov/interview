@@ -8,7 +8,7 @@ import com.softwareag.calculator.parser.generated.*;
  */
 public class ArithmeticDefaultVisitor implements ArithmeticVisitor {
     public int visit(SimpleNode node, Object data) {
-        throw new IllegalArgumentException();
+        throw new IllegalStateException();
     }
 
     public int visit(ASTStart node, Object data) {
